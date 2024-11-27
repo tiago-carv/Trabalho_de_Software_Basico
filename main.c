@@ -6,6 +6,7 @@ typedef struct Instruct{
     int operand;
 }instruct;
 
+typedef unsigned char byte;
 
 int main(int argc, char const *argv[]){
 
@@ -23,7 +24,7 @@ int main(int argc, char const *argv[]){
     //inicialização do programa na memória
     instruct program[limit], instruction;
 
-    int opcode, operand, pc=0,acc=0,mem[limit];
+    byte opcode, operand, pc=0,acc=0,mem[limit];
 
     for (int i = 0; i < limit; i++)
     {
