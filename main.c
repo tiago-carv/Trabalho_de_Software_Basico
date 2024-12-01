@@ -24,7 +24,7 @@ int main(int argc, char const *argv[]){
     //inicialização do programa na memória
     instruct program[limit], instruction;
 
-    byte opcode, operand, pc=0,acc=0,mem[limit];
+    byte opcode, operand, pc=0,acc=0,stat=0,mem[limit];
 
     for (int i = 0; i < limit; i++)
     {
@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]){
     }
     
     int cont_intrucoes = 0;
-    while (fscanf(Program, "%x %x", &program[cont_intrucoes].opcode, &program[cont_intrucoes].operand))
+    while (fscanf(Program, "%x %x", &program[cont_intrucoes].opcode, &program[cont_intrucoes].operand) == 2)
     {
         cont_intrucoes++;
         if (cont_intrucoes >= limit) {
@@ -52,14 +52,71 @@ int main(int argc, char const *argv[]){
 
         switch (opcode)
         {
-        case 0x00:
-            /* code */
+        case 0x00:  //LOAD
+            acc = mem[operand];
             break;
-        
+        case 0x01:  //LOAD
+            acc = operand;
+            break;
+        case 0x02:  //STORE
+            mem[operand] = acc;
+            break;
+        case 0x03:  //ADD
+            acc = acc + mem[operand];
+            break;
+        case 0x04:  //SUB
+            acc = acc - mem[operand];
+            break;
+        case 0x05:  //MUL
+            acc = acc * mem[operand];
+            break;
+        case 0x06:  //DIV
+            acc = acc / mem[operand];
+            break;
+        case 0x07:  //INC
+            acc++;
+            break;
+        case 0x08:  //DEC
+            acc--;
+            break;
+        case 0x09:  //AND
+            acc = acc & mem[operand];
+            break;
+        case 0x0A:  //OR
+            acc = acc | mem[operand];
+            break;
+        case 0x0B:  //NOT
+            acc = ~acc;
+            break;
+        case 0x0C:  //JMP
+            pc = operand;
+            break;
+        case 0x0D:  //JZ
+            if(acc == 0) pc = operand;
+            break;
+        case 0x0E:  //JNZ
+            if(acc != 0) pc = operand;
+            break;
+        case 0x0F:  //JG
+            if(acc > 0) pc = operand;
+            break;
+        case 0x10:  //JL
+            if(acc < 0) pc = operand;
+            break;
+        case 0x11:  //JGE
+            if(acc >= 0) pc = operand;
+            break;
+        case 0x12:  //JLE
+            if(acc <= 0) pc = operand;
+            break;
+        case 0x13:  //HLT
+            pc = cont_intrucoes+1;
         default:
             break;
         }
     }
+    if(acc == 0) stat = 0 ;
+    printf("acc: %d\n",acc);
     
     return 0;
 }
