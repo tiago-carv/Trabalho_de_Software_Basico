@@ -30,21 +30,17 @@ int main(int argc, char const *argv[]){
     {
         program[i].opcode = 0;
         program[i].operand = 0;
-        mem[i] = 0;
     }
     
     int cont_intrucoes = 0;
-    while (fscanf(Program, "%x %x", &program[cont_intrucoes].opcode, &program[cont_intrucoes].operand) == 2)
+    while ((fread(&program[cont_intrucoes],sizeof(char),1,arquivo)) != 0)
     {
+        fread(&program[cont_intrucoes],sizeof(char),1,arquivo);
         cont_intrucoes++;
-        if (cont_intrucoes >= limit) {
-            fprintf(stderr, "Programa excedeu o limite de instruções.\n");
-            return 1;
-        }
     }
     
 
-    while(pc<cont_intrucoes){
+    while( instruction.opcode != 0x13){
         instruction = program[pc];
         opcode = instruction.opcode;
         operand = instruction.operand;
@@ -109,14 +105,12 @@ int main(int argc, char const *argv[]){
         case 0x12:  //JLE
             if(acc <= 0) pc = operand;
             break;
-        case 0x13:  //HLT
-            pc = cont_intrucoes+1;
         default:
             perror("Operação inesistente!");
             return 1;
             break;
         }
-    }
+    }    
     if(acc == 0) stat = 0 ;
     printf("acc: %d\n",acc);
     
