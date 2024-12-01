@@ -40,7 +40,7 @@ int main(int argc, char const *argv[]){
     }
     
 
-    while( instruction.opcode != 0x13){
+    while( program[pc].opcode != 0x13){
         instruction = program[pc];
         opcode = instruction.opcode;
         operand = instruction.operand;
