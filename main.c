@@ -112,6 +112,8 @@ int main(int argc, char const *argv[]){
         case 0x13:  //HLT
             pc = cont_intrucoes+1;
         default:
+            perror("Operação inesistente!");
+            return 1;
             break;
         }
     }
