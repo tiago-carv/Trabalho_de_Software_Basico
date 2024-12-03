@@ -15,3 +15,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Erro na compilação."
 fi
+
+# Monta o assembly em um binário
+./sp1a test.asm
