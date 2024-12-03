@@ -17,4 +17,4 @@ else
 fi
 
 # Monta o assembly em um binário
-./sp1a test.asm
+#./sp1a test.asm
