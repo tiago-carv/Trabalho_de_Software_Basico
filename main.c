@@ -1,19 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef signed char byte;
 typedef struct Instruct{
-    int opcode;
-    int operand;
+    byte opcode;
+    byte operand;
 }instruct;
 
-typedef unsigned char byte;
+void check_carry_and_overflow(byte a, byte b, int op, byte* status);
 
 int main(int argc, char const *argv[]){
 
     const int limit = 255;
-    const char* arquivo = "nome_do_arquivo.txt";
+    const char* archive_name = argv[argc-1];
 
-    FILE* Program = fopen(arquivo,"r");
+    FILE* Program = fopen(archive_name,"rb");
 
     if(Program == NULL){
         perror("Arquivo nao encontrado");
@@ -33,12 +34,19 @@ int main(int argc, char const *argv[]){
     }
     
     int cont_intrucoes = 0;
-    while ((fread(&program[cont_intrucoes],sizeof(char),1,arquivo)) != 0)
+    byte digit = 0;
+    while ((fread(&digit,1,1,Program)) != 0)
     {
-        fread(&program[cont_intrucoes],sizeof(char),1,arquivo);
+        program[cont_intrucoes].opcode = digit;
+        if(fread(&digit,1,1,Program) !=0){
+            program[cont_intrucoes].operand = digit;
+        }else{
+            perror("Número de operando insuficiente");
+            return 1;
+        }
         cont_intrucoes++;
     }
-    
+
 
     while( program[pc].opcode != 0x13){
         instruction = program[pc];
@@ -58,21 +66,26 @@ int main(int argc, char const *argv[]){
             mem[operand] = acc;
             break;
         case 0x03:  //ADD
+            check_carry_and_overflow(acc,mem[operand],1,&stat);
             acc = acc + mem[operand];
             break;
         case 0x04:  //SUB
+            check_carry_and_overflow(acc,mem[operand],-1,&stat);
             acc = acc - mem[operand];
             break;
         case 0x05:  //MUL
+            check_carry_and_overflow(acc,mem[operand],2,&stat);
             acc = acc * mem[operand];
             break;
         case 0x06:  //DIV
             acc = acc / mem[operand];
             break;
         case 0x07:  //INC
+            check_carry_and_overflow(acc,1,1,&stat);
             acc++;
             break;
         case 0x08:  //DEC
+            check_carry_and_overflow(acc,-1,-1,&stat);
             acc--;
             break;
         case 0x09:  //AND
@@ -88,22 +101,46 @@ int main(int argc, char const *argv[]){
             pc = operand;
             break;
         case 0x0D:  //JZ
-            if(acc == 0) pc = operand;
+            if(acc == 0) {
+                pc = operand;
+            }else{
+                pc++;
+            }
             break;
         case 0x0E:  //JNZ
-            if(acc != 0) pc = operand;
+            if(acc != 0) {
+                pc = operand;
+            }else{
+                pc++;
+            }
             break;
         case 0x0F:  //JG
-            if(acc > 0) pc = operand;
+            if(acc > 0) {
+                pc = operand;
+            }else{
+                pc++;
+            }
             break;
         case 0x10:  //JL
-            if(acc < 0) pc = operand;
+            if(acc < 0) {
+                pc = operand;
+            }else{
+                pc++;
+            }
             break;
         case 0x11:  //JGE
-            if(acc >= 0) pc = operand;
+            if(acc >= 0) {
+                pc = operand;
+            }else{
+                pc++;
+            }
             break;
         case 0x12:  //JLE
-            if(acc <= 0) pc = operand;
+            if(acc <= 0) {
+                pc = operand;
+            }else{
+                pc++;
+            }
             break;
         default:
             perror("Operação inesistente!");
@@ -111,8 +148,23 @@ int main(int argc, char const *argv[]){
             break;
         }
     }    
-    if(acc == 0) stat = 0 ;
-    printf("acc: %d\n",acc);
+    if(acc == 0) stat = stat | 1 ;
+    printf("acc: %d\n stat: %d\n",acc,stat);
     
     return 0;
+}
+
+void check_carry_and_overflow(byte a, byte b, int op, byte* status) {
+    byte result;
+    if (op == 2){
+        result = (int)a * b;
+    }else{
+        result = a + b * op;
+    }
+    
+    int carry = (a > 127 - b) ||(a < -128 - b); // Verifica se houve carry-out
+    int overflow = ((a > 0 && b > 0 && result < 0) || (a < 0 && b < 0 && result > 0)) != 0; // Detecta overflow
+
+    if (op != 2) *status |= carry;
+    *status |= overflow;
 }
